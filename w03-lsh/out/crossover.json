@@ -1,0 +1,78 @@
+{
+  "runs": [
+    {
+      "n": 250,
+      "brute_s": 0.18410049995873123,
+      "brute_calls": 31125,
+      "brute_peak_bytes": 7304
+    },
+    {
+      "n": 500,
+      "brute_s": 0.6753494000295177,
+      "brute_calls": 124750,
+      "brute_peak_bytes": 7816
+    },
+    {
+      "n": 1000,
+      "brute_s": 2.6326071999501437,
+      "brute_calls": 499500,
+      "brute_peak_bytes": 9416
+    },
+    {
+      "n": 2000,
+      "brute_s": 10.876154799945652,
+      "brute_calls": 1999000,
+      "brute_peak_bytes": 24456
+    },
+    {
+      "n": 100,
+      "brute_s": 0.025275400024838746,
+      "brute_calls": 4950,
+      "brute_peak_bytes": 6576,
+      "lsh_s": 0.46562960010487586,
+      "lsh_calls": 159,
+      "lsh_peak_bytes": 685072
+    },
+    {
+      "n": 250,
+      "brute_s": 0.17144409997854382,
+      "brute_calls": 31125,
+      "brute_peak_bytes": 7304,
+      "lsh_s": 1.147061700001359,
+      "lsh_calls": 1058,
+      "lsh_peak_bytes": 1766760
+    },
+    {
+      "n": 500,
+      "brute_s": 0.6837106000166386,
+      "brute_calls": 124750,
+      "brute_peak_bytes": 7816,
+      "lsh_s": 2.340663700015284,
+      "lsh_calls": 4609,
+      "lsh_peak_bytes": 3760528
+    },
+    {
+      "n": 1000,
+      "brute_s": 2.6094084000214934,
+      "brute_calls": 499500,
+      "brute_peak_bytes": 9352,
+      "lsh_s": 4.740390299935825,
+      "lsh_calls": 18389,
+      "lsh_peak_bytes": 8455112
+    },
+    {
+      "n": 1600,
+      "brute_s": 6.334026500000618,
+      "brute_calls": 1279200,
+      "brute_peak_bytes": 9640,
+      "lsh_s": 7.644958600052632,
+      "lsh_calls": 45819,
+      "lsh_peak_bytes": 15937928
+    }
+  ],
+  "machine": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "processor": "Intel64 Family 6 Model 197 Stepping 2, GenuineIntel",
+    "python": "3.14.3"
+  }
+}
