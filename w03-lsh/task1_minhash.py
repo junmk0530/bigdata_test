@@ -30,37 +30,62 @@ BOOK_HASHES = [lambda r: (r + 1) % 5, lambda r: (3 * r + 1) % 5]
 
 def jaccard(a, b):
     """|a and b| / |a or b|. Empty union is 0, not an error."""
-    raise NotImplementedError("jaccard similarity")
-
+    intersection=len(a&b)
+    union=len(a|b)
+    if union==0:
+        return 0
+    return intersection/union
 
 def minhash_signatures(columns, hashes, n_rows):
-    """Build the signature matrix, one pass over the rows.
-
-    `columns` is [set_of_row_numbers, ...], one entry per document.
-    Return [[sig for each hash] for each column].
-
-    The algorithm in §3.3.5 walks each row **once** and updates the signature
-    of every column that has a 1 in it:
-
-        sig[h][c] = min(sig[h][c], h(r))
-
-    Doing it that way is the point. If you sort or re-scan per column you have
-    written something correct that does not survive a dataset that does not fit
-    in memory, and not fitting in memory is what this course is about.
-    """
-    raise NotImplementedError("signature matrix")
+    num_docs = len(columns)
+    num_hashes = len(hashes)
+    
+    sig_matrix = [[float('inf')] * num_hashes for _ in range(num_docs)]
+    
+    for r in range(n_rows):
+        
+        hash_values = [h(r) for h in hashes]
+        
+        
+        for c, col_set in enumerate(columns):
+            if r in col_set:
+                for h_idx in range(num_hashes):
+                    sig_matrix[c][h_idx] = min(sig_matrix[c][h_idx], hash_values[h_idx])
+                    
+    return sig_matrix
 
 
 def lsh_candidates(signatures, bands):
-    """Split each signature into `bands` bands and hash each band.
-
-    Two columns are candidates if they land in the same bucket for **at least
-    one** band. Return {(i, j), ...} with i < j.
-
-    The signature length must divide evenly by `bands`, or you have to decide
-    what to do with the remainder. Say what you decided.
-    """
-    raise NotImplementedError("LSH candidate pairs")
+    num_docs = len(signatures)
+    sig_len = len(signatures[0])
+    
+    assert sig_len % bands == 0, "Signature length must divide evenly by bands"
+    
+    r = sig_len // bands
+    candidates = set()
+    
+    for b in range(bands):
+        buckets = {}
+        for doc_id in range(num_docs):
+           
+            band_portion = tuple(signatures[doc_id][b * r : (b + 1) * r])
+            
+           
+            if band_portion not in buckets:
+                buckets[band_portion] = []
+            buckets[band_portion].append(doc_id)
+        
+        
+        for doc_list in buckets.values():
+            if len(doc_list) > 1:
+                for i in range(len(doc_list)):
+                    for j in range(i + 1, len(doc_list)):
+                        u, v = doc_list[i], doc_list[j]
+                        if u > v:
+                            u, v = v, u
+                        candidates.add((u, v))
+                        
+    return candidates
 
 
 # ------------------------------------------------------------------- harness

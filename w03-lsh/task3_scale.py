@@ -61,7 +61,65 @@ class YourFinder:
     """
 
     def __init__(self, threshold):
-        raise NotImplementedError("write your finder")
+        self.threshold = threshold
+        # 해시 수 n=160, 밴드 수 b=80 -> r = 2로 변경
+        # r=2로 낮추면 후보군을 매우 촘촘하게 추출하여 Recall이 95~100%까지 상승합니다.
+        self.num_hashes = 160
+        self.bands = 80
+        self.r = self.num_hashes // self.bands
+
+        # 결정론적 해시 함수 생성
+        self.prime = 4294967311
+        self.hashes = [
+            (lambda r, a=a, b=b: ((a * r + b) % self.prime))
+            for a, b in [
+                ((i * 10007 + 3) % 2147483647, (i * 50021 + 7) % 2147483647)
+                for i in range(1, self.num_hashes + 1)
+            ]
+        ]
 
     def find(self, docs, similarity):
-        raise NotImplementedError
+        num_docs = len(docs)
+        if num_docs < 2:
+            return set()
+
+        # 1. Minhash 시그니처 생성
+        # 각 문서(doc)의 shingle들을 해싱하여 최소값을 구합니다.
+        signatures = []
+        for doc in docs:
+            sig = []
+            for h in self.hashes:
+                if not doc:
+                    sig.append(0)
+                else:
+                    sig.append(min(h(x) for x in doc))
+            signatures.append(sig)
+
+        # 2. LSH Banding을 통해 후보 쌍(Candidates) 추출
+        candidates = set()
+        for b in range(self.bands):
+            buckets = {}
+            for doc_id in range(num_docs):
+                band_portion = tuple(
+                    signatures[doc_id][b * self.r : (b + 1) * self.r]
+                )
+                if band_portion not in buckets:
+                    buckets[band_portion] = []
+                buckets[band_portion].append(doc_id)
+
+            for doc_list in buckets.values():
+                if len(doc_list) > 1:
+                    for i in range(len(doc_list)):
+                        for j in range(i + 1, len(doc_list)):
+                            u, v = doc_list[i], doc_list[j]
+                            if u > v:
+                                u, v = v, u
+                            candidates.add((u, v))
+
+        # 3. LSH가 걸러낸 후보 쌍들에 대해서만 실제 similarity() 호출 검사
+        out = set()
+        for i, j in candidates:
+            if similarity(docs[i], docs[j]) >= self.threshold:
+                out.add((i, j))
+
+        return out
