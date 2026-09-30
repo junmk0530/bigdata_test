@@ -86,10 +86,58 @@ class YourPageRank:
     """
 
     def __init__(self, beta=0.85, tol=1e-10, max_iter=100):
-        raise NotImplementedError("write your PageRank")
+        self.beta = beta
+        self.tol = tol
+        self.max_iter = max_iter
+        self.iterations = 0
+        self._max_floats = 0
 
     def run(self, graph):
-        raise NotImplementedError
+        nodes = list(graph.keys())
+        n = len(nodes)
+        if n == 0:
+            self._max_floats = 0
+            return {}
+
+        # 1. 랭크 벡터 초기화 (r_old: n, r_new: n)
+        r = {node: 1.0 / n for node in nodes}
+
+        # 메모리 추적: r 벡터(n) + new_r 벡터(n) + 각 노드의 degree 정보에 대한 float/계산 구조
+        # 알고리즘 동작 중 동시에 가지고 있는 float 값들의 개수 (약 2n ~ 3n 개 수준)
+        self._max_floats = 2 * n
+
+        for it in range(1, self.max_iter + 1):
+            self.iterations = it
+            new_r = {node: 0.0 for node in nodes}
+
+            # 2. Dead end 노드들의 랭크 합 계산
+            dead_end_rank = sum(
+                r[node] for node, outs in graph.items() if len(outs) == 0
+            )
+
+            # 3. Sparse update: Out-link를 따라 랭크를 아웃-이웃들에게만 전송
+            for node, outs in graph.items():
+                deg = len(outs)
+                if deg > 0:
+                    share = r[node] / deg
+                    for target in outs:
+                        new_r[target] += share
+
+            # 4. Teleportation + Dead end 처리를 단일 스칼라 상수로 합성
+            teleport_share = (1.0 - self.beta + self.beta * dead_end_rank) / n
+
+            # 5. 전역 스칼라 가산 및 수렴 판단(L1 norm 계산)
+            delta = 0.0
+            for node in nodes:
+                new_r[node] = self.beta * new_r[node] + teleport_share
+                delta += abs(new_r[node] - r[node])
+
+            r = new_r
+
+            if delta < self.tol:
+                break
+
+        return r
 
     def memory_floats(self):
-        raise NotImplementedError
+        return self._max_floats

@@ -29,14 +29,38 @@ def build(nodes, avg_out=8, seed=246):
 
 
 def local_pagerank(edges, nodes, beta=0.85, iterations=10):
-    """Your task 3 implementation, adapted to an edge list.
+    graph = {i: [] for i in range(nodes)}
+    for src, dst in edges:
+        graph[src].append(dst)
 
-    TASK 4a - reuse what you wrote in task3_sparse.py. Hold the graph however
-    you like; the point of this task is to find out what that costs.
+    # 2. 랭크 초기화 (모든 노드에 1 / N)
+    r = {i: 1.0 / nodes for i in range(nodes)}
 
-    Return {node: rank} and set local_pagerank.peak_bytes.
-    """
-    raise NotImplementedError("TASK 4a - reuse your sparse PageRank")
+    for _ in range(iterations):
+        new_r = {i: 0.0 for i in range(nodes)}
+
+        # Dead end 노드들의 랭크 합
+        dead_end_rank = sum(
+            r[node] for node, outs in graph.items() if len(outs) == 0
+        )
+
+        # Sparse Update
+        for node, outs in graph.items():
+            deg = len(outs)
+            if deg > 0:
+                share = r[node] / deg
+                for target in outs:
+                    new_r[target] += share
+
+        # Teleportation + Dead end 처리를 단일 스칼라로 합성
+        teleport_share = (1.0 - beta + beta * dead_end_rank) / nodes
+
+        for node in range(nodes):
+            new_r[node] = beta * new_r[node] + teleport_share
+
+        r = new_r
+
+    return r
 
 
 def spark_pagerank(edges, nodes, beta=0.85, iterations=10):

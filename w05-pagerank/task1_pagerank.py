@@ -25,32 +25,60 @@ SPIDER_TRAP = {"A": ["B"], "B": ["C"], "C": ["D"], "D": ["C"]}
 
 
 def pagerank(graph, beta=0.85, iterations=100, tol=1e-10):
-    """Rank every node. Return {node: rank}, summing to 1.
+    nodes = list(graph.keys())
+    N = len(nodes)
+    if N == 0:
+        pagerank.iterations = 0
+        return {}
 
-    `beta` is the probability the surfer follows a link. With probability
-    1 - beta they teleport to a node chosen uniformly.
+    r = {node: 1.0 / N for node in nodes}
+    actual_iterations = 0
 
-    You have to handle both of these, and the textbook handles them the same way:
+    for it in range(iterations):
+        actual_iterations += 1
+        new_r = {node: 0.0 for node in nodes}
+        dead_end_rank = sum(r[node] for node in nodes if len(graph[node]) == 0)
 
-      dead ends    a node with no out-links. Where does its rank go, and where
-                   should it go instead?
-      spider traps a group of nodes that only link to each other. Without
-                   teleporting, they end up with all of it
+        for node in nodes:
+            out_links = graph[node]
+            if len(out_links) > 0:
+                share = r[node] / len(out_links)
+                for target in out_links:
+                    new_r[target] += share
 
-    Stop early when the ranks stop moving - `tol` is the L1 change below which
-    you should call it converged. Return the ranks, and set `pagerank.iterations`
-    to how many you actually used, because Task 2 measures that.
-    """
-    raise NotImplementedError("implement PageRank")
+        teleport_share = (1.0 - beta + beta * dead_end_rank) / N
+        for node in nodes:
+            new_r[node] = beta * new_r[node] + teleport_share
+
+        l1_diff = sum(abs(new_r[node] - r[node]) for node in nodes)
+        r = new_r
+
+        if l1_diff < tol:
+            break
+
+    pagerank.iterations = actual_iterations
+    return r
 
 
 def pagerank_no_teleport(graph, iterations=100):
-    """The broken version: beta = 1, no teleporting. Build this too.
+    nodes = list(graph.keys())
+    N = len(nodes)
+    if N == 0:
+        return {}
 
-    It exists so you can watch both failures happen rather than take them on
-    trust. The harness checks that it really does fail.
-    """
-    raise NotImplementedError("implement the broken version")
+    r = {node: 1.0 / N for node in nodes}
+
+    for _ in range(iterations):
+        new_r = {node: 0.0 for node in nodes}
+        for node in nodes:
+            out_links = graph[node]
+            if len(out_links) > 0:
+                share = r[node] / len(out_links)
+                for target in out_links:
+                    new_r[target] += share
+        r = new_r
+
+    return r
 
 
 # ------------------------------------------------------------------- harness
