@@ -2,10 +2,10 @@
   80,000 bits, 8,000 items inserted, 200,000 queried
 
   baseline   false positives  19,023  ( 9.511%)   false negatives     0   bits 80,000
-  yours      false positives 185,059  (92.529%)   false negatives     0   bits 80,000
+  yours      false positives   1,999  ( 1.000%)   false negatives     0   bits 80,000
 
    ok    no false negatives
-   false-positive rate cut by -872.8%  (92.529% from 9.511%)
+   false-positive rate cut by 89.5%  (1.000% from 9.511%)
 
-   -> not yet
+   -> good
 
