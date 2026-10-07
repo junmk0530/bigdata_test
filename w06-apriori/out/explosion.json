@@ -1,0 +1,93 @@
+{
+  "runs": [
+    {
+      "support": 400,
+      "frequent_pairs": 249,
+      "peak_counters": 10585,
+      "seconds": 0.5498840999789536,
+      "peak_bytes": 1145988
+    },
+    {
+      "support": 200,
+      "frequent_pairs": 776,
+      "peak_counters": 58626,
+      "seconds": 0.8050309000536799,
+      "peak_bytes": 6714128
+    },
+    {
+      "support": 100,
+      "frequent_pairs": 2244,
+      "peak_counters": 273701,
+      "seconds": 1.7382365998346359,
+      "peak_bytes": 28562368
+    },
+    {
+      "support": 50,
+      "frequent_pairs": 6397,
+      "peak_counters": 820259,
+      "seconds": 2.8162015001289546,
+      "peak_bytes": 107747360
+    },
+    {
+      "support": 25,
+      "frequent_pairs": 17045,
+      "peak_counters": 893456,
+      "seconds": 3.4339299998246133,
+      "peak_bytes": 107744896
+    },
+    {
+      "support": 400,
+      "frequent_pairs": 249,
+      "peak_counters": 10585,
+      "seconds": 0.4394298999104649,
+      "peak_bytes": 1146252
+    },
+    {
+      "support": 200,
+      "frequent_pairs": 776,
+      "peak_counters": 58626,
+      "seconds": 0.7389945001341403,
+      "peak_bytes": 6714128
+    },
+    {
+      "support": 100,
+      "frequent_pairs": 2244,
+      "peak_counters": 273701,
+      "seconds": 1.3120317999273539,
+      "peak_bytes": 28562368
+    },
+    {
+      "support": 50,
+      "frequent_pairs": 6397,
+      "peak_counters": 820259,
+      "seconds": 2.418698700144887,
+      "peak_bytes": 107747360
+    },
+    {
+      "support": 25,
+      "frequent_pairs": 17045,
+      "peak_counters": 893456,
+      "seconds": 2.3251422999892384,
+      "peak_bytes": 107744896
+    },
+    {
+      "support": 12,
+      "frequent_pairs": 43116,
+      "peak_counters": 893456,
+      "seconds": 2.348758000181988,
+      "peak_bytes": 109847504
+    },
+    {
+      "support": 6,
+      "frequent_pairs": 101938,
+      "peak_counters": 893456,
+      "seconds": 2.3297500000335276,
+      "peak_bytes": 126485184
+    }
+  ],
+  "machine": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "processor": "Intel64 Family 6 Model 197 Stepping 2, GenuineIntel",
+    "python": "3.14.3"
+  }
+}

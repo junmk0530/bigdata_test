@@ -34,7 +34,28 @@ def son_pass_one(chunks, support, total_baskets):
 
     TASK 4a
     """
-    raise NotImplementedError("TASK 4a - SON pass one")
+    candidates = set()
+
+    for chunk in chunks:
+        if not chunk:
+            continue
+
+        # §6.4.3: Chunk 크기에 비례하여 Threshold 스케일링
+        scaled_support = support * len(chunk) / total_baskets
+
+        # Chunk 내부에서 Pair 카운트
+        counts = {}
+        for basket in chunk:
+            items = sorted(basket)
+            for pair in combinations(items, 2):
+                counts[pair] = counts.get(pair, 0) + 1
+
+        # Scaled support 이상인 후보들을 candidates 집합에 추가
+        for pair, cnt in counts.items():
+            if cnt >= scaled_support:
+                candidates.add(frozenset(pair))
+
+    return candidates
 
 
 def son_pass_two(baskets, candidates, support):
@@ -46,8 +67,17 @@ def son_pass_two(baskets, candidates, support):
 
     TASK 4b
     """
-    raise NotImplementedError("TASK 4b - SON pass two")
+    counts = {cand: 0 for cand in candidates}
 
+    # 전체 장바구니를 순회하며 Candidate들에 대한 실제 빈도 측정
+    for basket in baskets:
+        basket_set = set(basket)
+        for cand in candidates:
+            if cand.issubset(basket_set):
+                counts[cand] += 1
+
+    # 원본 support 이상인 경우만 유지 (False Positive 제거)
+    return {cand: cnt for cand, cnt in counts.items() if cnt >= support}
 
 # ------------------------------------------------------------------- harness
 def chunked(baskets, n_chunks):

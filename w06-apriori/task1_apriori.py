@@ -30,13 +30,18 @@ BASKETS = [
 
 def frequent_singletons(baskets, support):
     """Items appearing in at least `support` baskets. Return {item: count}."""
-    raise NotImplementedError("pass one")
+    counts = {}
+    for basket in baskets:
+        for item in basket:
+            counts[item] = counts.get(item, 0) + 1
 
+    return {item: cnt for item, cnt in counts.items() if cnt >= support}
 
 def frequent_pairs(baskets, support):
     """Pairs appearing in at least `support` baskets, using A-Priori.
 
     Return {frozenset({a, b}): count}.
+    
 
     The requirement that makes this A-Priori rather than brute force: pass two
     must only ever count pairs **both of whose items were frequent in pass one**.
@@ -44,7 +49,20 @@ def frequent_pairs(baskets, support):
     A-Priori exists to avoid, and it will pass this harness while failing the
     point. Task 3 measures whether you actually did it.
     """
-    raise NotImplementedError("pass two")
+    # Pass 1: Frequent Singletons
+    singletons = frequent_singletons(baskets, support)
+    freq_items = set(singletons.keys())
+
+    # Pass 2: A-Priori Filtering
+    # Pass 1에서 자주 등장한(frequent) 아이템들만으로 조합을 만들어 카운트
+    pair_counts = {}
+    for basket in baskets:
+        valid_items = sorted(list(basket & freq_items))
+        for pair in combinations(valid_items, 2):
+            key = frozenset(pair)
+            pair_counts[key] = pair_counts.get(key, 0) + 1
+
+    return {pair: cnt for pair, cnt in pair_counts.items() if cnt >= support}
 
 
 def association_rules(baskets, support, min_confidence):
@@ -60,7 +78,37 @@ def association_rules(baskets, support, min_confidence):
     rule with high confidence and lift near 1 tells you nothing - the consequent
     was common anyway - and §6.1.3 is about why that matters more than it looks.
     """
-    raise NotImplementedError("rules")
+    singletons = frequent_singletons(baskets, support)
+    pairs = frequent_pairs(baskets, support)
+    num_baskets = len(baskets)
+
+    rules = []
+
+    for pair, pair_supp in pairs.items():
+        pair_list = list(pair)
+        i, j = pair_list[0], pair_list[1]
+
+        # Rule 1: i -> j
+        supp_i = singletons[i]
+        conf_i_j = pair_supp / supp_i
+        supp_frac_j = singletons[j] / num_baskets
+        lift_i_j = conf_i_j / supp_frac_j
+
+        if conf_i_j >= min_confidence:
+            rules.append((i, j, conf_i_j, lift_i_j))
+
+        # Rule 2: j -> i
+        supp_j = singletons[j]
+        conf_j_i = pair_supp / supp_j
+        supp_frac_i = singletons[i] / num_baskets
+        lift_j_i = conf_j_i / supp_frac_i
+
+        if conf_j_i >= min_confidence:
+            rules.append((j, i, conf_j_i, lift_j_i))
+
+    # 신뢰도(Confidence) 내림차순 정렬
+    rules.sort(key=lambda x: x[2], reverse=True)
+    return rules
 
 
 # ------------------------------------------------------------------- harness

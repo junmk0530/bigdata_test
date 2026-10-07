@@ -76,7 +76,54 @@ class YourAlgorithm:
     """
 
     def __init__(self, support):
-        raise NotImplementedError("write your algorithm")
+        self.support = support
+        self.peak_counters = 0
 
     def run(self, baskets):
-        raise NotImplementedError
+        # 버킷 개수 설정 (Pass 1에서 사용할 메모리 버킷 수)
+        num_buckets = 500_000
+
+        # ------------------------------------------------ Pass 1: Singletons & Hash Buckets
+        item_counts = Counter()
+        bucket_counts = [0] * num_buckets
+
+        for basket in baskets:
+            items = sorted(basket)
+            item_counts.update(items)
+
+            # Pass 1: 모든 Pair를 해시하여 버킷 카운팅
+            for pair in combinations(items, 2):
+                b_idx = hash(pair) % num_buckets
+                bucket_counts[b_idx] += 1
+
+        # Frequent Item 선별
+        frequent_items = {
+            i for i, c in item_counts.items() if c >= self.support
+        }
+
+        # ------------------------------------------------ Pass 1.5: Bucket -> Bitmap 변환
+        # Pass 2 진행 전 버킷 카운터를 비트맵(boolean 배열)으로 압축하고 정수 배열 메모리 해제
+        bitmap = [c >= self.support for c in bucket_counts]
+        del bucket_counts
+
+        # ------------------------------------------------ Pass 2: Candidate Pairs Counting
+        pair_counts = Counter()
+
+        for basket in baskets:
+            # Pass 1에서 살아남은 Frequent Item만 선별
+            valid_items = sorted(set(basket) & frequent_items)
+
+            for pair in combinations(valid_items, 2):
+                # 1) 두 아이템 모두 Frequent Item인가? (valid_items로 보장)
+                # 2) 해당 Pair가 속한 해시 버킷이 Frequent인가? (bitmap 검사)
+                b_idx = hash(pair) % num_buckets
+                if bitmap[b_idx]:
+                    pair_counts[pair] += 1
+
+            self.peak_counters = max(self.peak_counters, len(pair_counts))
+
+        return {
+            frozenset(p): c
+            for p, c in pair_counts.items()
+            if c >= self.support
+        }
